@@ -1,0 +1,114 @@
+doctype html
+html
+    head
+        title="JSON Editor"
+        link(rel="stylesheet", href="/style.css")
+    mixin arrayTable(values, array_key, child)
+        if(child)
+            details
+                summary(id=array_key) #{array_key}
+                table(data-table_type='array')
+                    each value, key in values
+                        tr
+                            if(typeof value === 'object')
+                                td(colspan=2)
+                                    +objectTable(value)
+                                td
+                                    .delete_btn
+                            else
+                                td #{key}
+                                td
+                                    input(type='text' value="#{value}")
+                                td
+                                    .delete_btn
+                    tr
+                        td(colspan=3)
+                            button.add_btn(data-array_type="true") Add
+        else 
+            table(data-table_type='array')
+                each value, key in values
+                    tr
+                        if(typeof value === 'object')
+                            td(colspan=2)
+                                +objectTable(value)
+                            td
+                                .delete_btn
+                        else
+                            td #{key}
+                            td
+                                input(type='text' value="#{value}")
+                            td
+                                .delete_btn
+                tr
+                    td(colspan=3)
+                        button.add_btn(data-array_type="true") Add
+
+
+    mixin objectTable(values, first)
+        table(data-table_type='object')
+            each value, key in values
+                tr
+                    if(Array.isArray(value))
+                        td #{key}
+                        td
+                            +arrayTable(value, key, true)
+                        td
+                            .delete_btn
+                    else if(typeof value === 'object')
+                        th(colspan=2 data-key=key) #{key}
+                        td
+                            .delete_btn
+                        each obj_value, obj_key in value
+                            tr
+                                if(Array.isArray(obj_value))
+                                    td #{obj_key}
+                                    td
+                                        +arrayTable(obj_value, obj_key, true)
+                                    td
+                                        .delete_btn
+                                else
+                                    td #{obj_key}
+                                    td
+                                        input(type='text' value="#{obj_value}")
+                                    td
+                                        .delete_btn
+                    else
+                        td #{key}
+                        td
+                            input(type='text' value="#{value}")
+                        td
+                            .delete_btn
+            if(first)
+                tr
+                    td(colspan=3)
+                        button.add_btn Add
+            
+
+    body(file_name=file_name)
+        h3 JSON Editor
+        #json_editor.json-editor
+            each values, key in json
+                details(open).first-level-details
+                    summary(id=key)=key
+                        .delete_root_btn
+                    if(Array.isArray(values))
+                        +arrayTable(values, key)
+                    else if(typeof values === 'object')
+                        +objectTable(values, true)
+                    else
+                        table(data-table_type="value")
+                            tr
+                                td #{key}
+                                td
+                                    input(type="text" value="#{values}")
+                br
+            hr
+            #buttons
+                button(id='save') Save
+                button(id='add') Add
+                button(id='cancel') Cancel
+            br
+            br
+            #dialog-message(title='Сообщение')
+
+    script(src="/json_editor.js")
